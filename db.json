@@ -1,0 +1,29 @@
+
+{
+  "vehicles": [
+    {
+      "id": "1",
+      "plate": "ABC1D23",
+      "brand": "Toyota",
+      "model": "Corolla",
+      "year": 2023,
+      "color": "Prata"
+    },
+    {
+      "id": "2",
+      "plate": "DEF4G56",
+      "brand": "Honda",
+      "model": "Civic",
+      "year": 2022,
+      "color": "Preto"
+    },
+    {
+      "id": "3",
+      "plate": "GHI7J89",
+      "brand": "Volkswagen",
+      "model": "Polo",
+      "year": 2024,
+      "color": "Branco"
+    }
+  ]
+}
