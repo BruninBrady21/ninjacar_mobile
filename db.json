@@ -31,14 +31,6 @@
       "year": 2016,
       "color": "Preto",
       "id": "JfRn5dZfbuo"
-    },
-    {
-      "plate": "AIS1234",
-      "brand": "Mercedes",
-      "model": "Caio",
-      "year": 2003,
-      "color": "Marrom",
-      "id": "Jj9gtbx3jw0"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

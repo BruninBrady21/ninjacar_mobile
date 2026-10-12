@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, Button, StyleSheet, Text, View, } from 'react-native';
+import { ActivityIndicator, Alert, Button, StyleSheet, Text, View, } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { api } from '../services/api';
@@ -14,6 +14,7 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
   const { vehicleId } = route.params;
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
 
   const loadVehicle = useCallback(async () => {
@@ -35,6 +36,40 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
       loadVehicle();
     }, [loadVehicle]),
   );
+
+  async function deleteVehicle() {
+    try {
+      setDeleting(true);
+      await api.delete(`/vehicles/${vehicleId}`);
+      navigation.goBack();
+      Alert.alert('Veículo excluído', 'O veículo foi removido com sucesso.');
+    } catch (requestError) {
+      console.error('Erro ao excluir veículo:', requestError);
+      Alert.alert(
+        'Não foi possível excluir',
+        'O veículo não foi removido. Verifique a conexão com a API e tente novamente.',
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function confirmDelete() {
+    Alert.alert(
+      'Excluir veículo?',
+      `Deseja realmente excluir ${vehicle?.brand} ${vehicle?.model}? Esta ação não pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            void deleteVehicle();
+          },
+        },
+      ],
+    );
+  }
 
   if (loading) {
     return (
@@ -67,8 +102,23 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
       <Button
         title="Editar veículo"
         color={theme.colors.primary}
+        disabled={deleting}
         onPress={() => navigation.navigate('EditVehicle', { vehicleId })}
       />
+      <View style={styles.buttonSpacing}>
+        {deleting ? (
+          <View style={styles.deleting}>
+            <ActivityIndicator color={theme.colors.danger} />
+            <Text style={styles.secondaryText}>Excluindo veículo...</Text>
+          </View>
+        ) : (
+          <Button
+            title="Excluir veículo"
+            color={theme.colors.danger}
+            onPress={confirmDelete}
+          />
+        )}
+      </View>
     </View>
   );
 }
@@ -107,6 +157,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.md,
+  },
+  buttonSpacing: {
+    marginTop: theme.spacing.sm,
+  },
+  deleting: {
+    minHeight: 44,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
   },
   detailRow: {
     paddingVertical: theme.spacing.sm,
