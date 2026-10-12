@@ -17,6 +17,7 @@ export default function VehicleListScreen({ navigation }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
 
@@ -84,6 +85,12 @@ const loadVehicles = useCallback(async () => {
     [loadVehicles]), );
 
   const filteredVehicles = vehicles.filter((vehicle) => {
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      normalizedSearch === '' ||
+      [vehicle.brand, vehicle.model, vehicle.plate, vehicle.color, String(vehicle.year)]
+        .some((value) => value.toLowerCase().includes(normalizedSearch));
+
     const matchesBrand = vehicle.brand
       .toLowerCase()
       .includes(brandFilter.trim().toLowerCase());
@@ -92,10 +99,11 @@ const loadVehicles = useCallback(async () => {
       yearFilter.trim() === '' ||
       String(vehicle.year).includes(yearFilter.trim());
 
-    return matchesBrand && matchesYear;
+    return matchesSearch && matchesBrand && matchesYear;
   });
 
   function clearFilters() {
+    setSearchQuery('');
     setBrandFilter('');
     setYearFilter('');
   }
@@ -113,7 +121,16 @@ const loadVehicles = useCallback(async () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Buscar por marca (ex.: Toyota)"
+        placeholder="Buscar por modelo, placa ou cor"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        autoCapitalize="none"
+        accessibilityLabel="Buscar veículos por modelo, placa, cor ou ano"
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Filtrar por marca (ex.: Toyota)"
         value={brandFilter}
         onChangeText={setBrandFilter}
         autoCapitalize="words"

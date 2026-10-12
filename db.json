@@ -5,7 +5,7 @@
       "plate": "ABC1D23",
       "brand": "Toyota",
       "model": "Corolla",
-      "year": 2016,
+      "year": 2026,
       "color": "Prata"
     },
     {
@@ -25,12 +25,20 @@
       "color": "Branco"
     },
     {
+      "id": "JfRn5dZfbuo",
       "plate": "FZA-1345",
       "brand": "Toyota",
       "model": "Etios",
+      "year": 2018,
+      "color": "Preto"
+    },
+    {
+      "plate": "EMI-7140",
+      "brand": "Subaru",
+      "model": "Natsuki",
       "year": 2016,
       "color": "Preto",
-      "id": "JfRn5dZfbuo"
+      "id": "q3xwp5yzjzk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
