@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import VehicleForm, { VehicleFormValues } from '../components/VehicleForm';
 import { api } from '../services/api';
+import { theme } from '../theme';
 import { Vehicle } from '../types/Vehicles';
 
 export default function CreateVehicleScreen() {
@@ -28,6 +29,7 @@ export default function CreateVehicleScreen() {
       title="Cadastrar novo veículo"
       subtitle="Preencha os dados do veículo abaixo."
       submitLabel="Salvar veículo"
+      submitColor={theme.colors.createAction}
       errorMessage="Não foi possível cadastrar o veículo. Verifique a conexão com a API e tente novamente."
       onSubmit={createVehicle}
     />

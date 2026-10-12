@@ -85,6 +85,7 @@ export default function EditVehicleScreen({ navigation, route }: Props) {
       title="Editar veículo"
       subtitle="Atualize os dados do veículo abaixo."
       submitLabel="Salvar alterações"
+      submitColor={theme.colors.editAction}
       errorMessage="Não foi possível atualizar o veículo. Verifique a conexão com a API e tente novamente."
       onSubmit={updateVehicle}
     />

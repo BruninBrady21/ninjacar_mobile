@@ -6,12 +6,14 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -30,6 +32,7 @@ type VehicleFormProps = {
   title: string;
   subtitle: string;
   submitLabel: string;
+  submitColor: string;
   errorMessage: string;
   onSubmit: (values: VehicleFormValues) => Promise<void>;
 };
@@ -61,6 +64,7 @@ export default function VehicleForm({
   title,
   subtitle,
   submitLabel,
+  submitColor,
   errorMessage,
   onSubmit,
 }: VehicleFormProps) {
@@ -171,13 +175,24 @@ export default function VehicleForm({
 
         <View style={styles.submitButton}>
           {saving ? (
-            <ActivityIndicator size="large" color={theme.colors.primary} />
+            <View style={[styles.submitAction, { backgroundColor: submitColor }]}>
+              <ActivityIndicator color={theme.colors.surface} />
+              <Text style={styles.submitActionText}>Salvando...</Text>
+            </View>
           ) : (
-            <Button
-              title={submitLabel}
-              color={theme.colors.primary}
+            <Pressable
+              style={[styles.submitAction, { backgroundColor: submitColor }]}
               onPress={() => formik.handleSubmit()}
-            />
+              accessibilityRole="button"
+              accessibilityLabel={submitLabel}
+            >
+              <MaterialCommunityIcons
+                name="content-save-outline"
+                size={21}
+                color={theme.colors.surface}
+              />
+              <Text style={styles.submitActionText}>{submitLabel}</Text>
+            </Pressable>
           )}
         </View>
       </ScrollView>
@@ -240,8 +255,20 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: theme.spacing.md,
-    minHeight: 44,
+  },
+  submitAction: {
+    minHeight: 48,
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    borderRadius: 8,
+    paddingHorizontal: theme.spacing.md,
+  },
+  submitActionText: {
+    color: theme.colors.surface,
+    fontSize: 16,
+    fontWeight: '700',
   },
   keyboardAccessory: {
     alignItems: 'flex-end',
