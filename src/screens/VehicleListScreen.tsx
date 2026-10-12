@@ -1,14 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  ActivityIndicator,
-  Button,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Button, FlatList, Pressable,
+  StyleSheet, Text, TextInput, View, } from 'react-native';
 
 import axios from 'axios';
 
@@ -116,20 +109,6 @@ const loadVehicles = useCallback(async () => {
         onPress={() => navigation.navigate('CreateVehicle')}
       />
 
-      <View style={styles.buttonSpacing}>
-        <Button
-          title="Detalhes do veículo"
-          onPress={() => navigation.navigate('VehicleDetails')}
-        />
-      </View>
-
-      <View style={styles.buttonSpacing}>
-        <Button
-          title="Editar veículo"
-          onPress={() => navigation.navigate('EditVehicle')}
-        />
-      </View>
-
       <Text style={styles.sectionTitle}>Filtros</Text>
 
       <TextInput
@@ -182,14 +161,22 @@ const loadVehicles = useCallback(async () => {
               </Text>
             }
             renderItem={({ item }) => (
-              <View style={styles.vehicleCard}>
+              <Pressable
+                style={styles.vehicleCard}
+                onPress={() =>
+                  navigation.navigate('VehicleDetails', { vehicleId: item.id })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Ver detalhes de ${item.brand} ${item.model}`}
+              >
                 <Text style={styles.vehicleTitle}>
                   {item.brand} {item.model}
                 </Text>
                 <Text>Placa: {item.plate}</Text>
                 <Text>Ano: {item.year}</Text>
                 <Text>Cor: {item.color}</Text>
-              </View>
+                <Text style={styles.cardAction}>Toque para ver detalhes</Text>
+              </Pressable>
             )}
           />
         </>
@@ -217,9 +204,6 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.sm,
   },
-  buttonSpacing: {
-    marginTop: theme.spacing.sm,
-  },
   input: {
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
@@ -243,6 +227,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
+  },
+  cardAction: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+    marginTop: theme.spacing.sm,
   },
   vehicleTitle: {
     fontSize: 16,
