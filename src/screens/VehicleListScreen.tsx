@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, Button, FlatList, Pressable,
-  StyleSheet, Text, TextInput, View, } from 'react-native';
+import { ActivityIndicator, Button, FlatList, Keyboard, KeyboardAvoidingView,
+  Platform, Pressable, StyleSheet, Text, TextInput, View, } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import axios from 'axios';
 
@@ -17,9 +18,27 @@ export default function VehicleListScreen({ navigation }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [brandFilter, setBrandFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSubscription = Keyboard.addListener(showEvent, () =>
+      setKeyboardVisible(true),
+    );
+    const hideSubscription = Keyboard.addListener(hideEvent, () =>
+      setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   /*const loadVehicles = useCallback(async () => {
     try {
@@ -109,22 +128,50 @@ const loadVehicles = useCallback(async () => {
   }
 
   return (
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
     <View style={styles.container}>
-      <Text style={styles.title}>NinjaCar - Veículos</Text>
+      <Text style={styles.title}>Sua garagem</Text>
 
-      <Button
-        title="Cadastrar veículo"
-        onPress={() => navigation.navigate('CreateVehicle')}
-      />
+      <View style={styles.actionsRow}>
+        <Pressable
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('CreateVehicle')}
+          accessibilityRole="button"
+          accessibilityLabel="Cadastrar novo carro"
+        >
+          <MaterialCommunityIcons name="plus" size={22} color={theme.colors.surface} />
+          <Text style={styles.actionButtonText}>Novo carro</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.actionButton, styles.filterToggle]}
+          onPress={() => setFiltersExpanded((expanded) => !expanded)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: filtersExpanded }}
+          accessibilityLabel={filtersExpanded ? 'Ocultar filtros' : 'Mostrar filtros'}
+        >
+          <MaterialCommunityIcons name="filter-variant" size={20} color={theme.colors.text} />
+          <Text style={styles.filterToggleText}>Filtros</Text>
+          <MaterialCommunityIcons
+            name={filtersExpanded ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={theme.colors.text}
+          />
+        </Pressable>
+      </View>
 
-      <Text style={styles.sectionTitle}>Filtros</Text>
-
+      {filtersExpanded && (
+        <View style={styles.filterPanel}>
       <TextInput
         style={styles.input}
         placeholder="Buscar por modelo, placa ou cor"
         value={searchQuery}
         onChangeText={setSearchQuery}
         autoCapitalize="none"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
         accessibilityLabel="Buscar veículos por modelo, placa, cor ou ano"
       />
 
@@ -134,6 +181,8 @@ const loadVehicles = useCallback(async () => {
         value={brandFilter}
         onChangeText={setBrandFilter}
         autoCapitalize="words"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
         accessibilityLabel="Filtrar veículos por marca"
       />
 
@@ -143,11 +192,21 @@ const loadVehicles = useCallback(async () => {
         value={yearFilter}
         onChangeText={setYearFilter}
         keyboardType="numeric"
+        returnKeyType="done"
+        onSubmitEditing={Keyboard.dismiss}
         accessibilityLabel="Filtrar veículos por ano"
       />
 
-      <Button title="Limpar filtros" onPress={clearFilters} />
-
+      <Pressable
+        style={styles.clearFiltersButton}
+        onPress={clearFilters}
+        accessibilityRole="button"
+      >
+        <MaterialCommunityIcons name="filter-remove-outline" size={18} color={theme.colors.primary} />
+        <Text style={styles.clearFiltersText}>Limpar filtros</Text>
+      </Pressable>
+        </View>
+      )}
       <Text style={styles.sectionTitle}>Veículos cadastrados</Text>
 
       {loading ? (
@@ -155,7 +214,10 @@ const loadVehicles = useCallback(async () => {
       ) : error ? (
         <View>
           <Text style={styles.error}>{error}</Text>
-          <Button title="Tentar novamente" onPress={loadVehicles} />
+          <Pressable style={styles.retryButton} onPress={loadVehicles} accessibilityRole="button">
+            <MaterialCommunityIcons name="refresh" size={20} color={theme.colors.surface} />
+            <Text style={styles.actionButtonText}>Tentar novamente</Text>
+          </Pressable>
         </View>
       ) : (
         <>
@@ -199,10 +261,19 @@ const loadVehicles = useCallback(async () => {
         </>
       )}
     </View>
+    {keyboardVisible && (
+      <View style={styles.keyboardAccessory}>
+        <Button title="OK" onPress={Keyboard.dismiss} />
+      </View>
+    )}
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -221,6 +292,62 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.sm,
   },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  actionButton: {
+    minHeight: 46,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  actionButtonText: {
+    color: theme.colors.surface,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  filterToggle: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.cardBorder,
+  },
+  filterToggleText: {
+    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  filterPanel: {
+    marginTop: theme.spacing.sm,
+    padding: theme.spacing.sm,
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
+  },
+  clearFiltersButton: {
+    minHeight: 42,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  clearFiltersText: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+  },
+  retryButton: {
+    minHeight: 44,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 8,
+  },
   input: {
     backgroundColor: theme.colors.surface,
     borderWidth: 1,
@@ -238,9 +365,9 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.lg,
   },
   vehicleCard: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: theme.colors.cardBorder,
     borderRadius: 8,
     padding: theme.spacing.md,
     marginBottom: theme.spacing.sm,
@@ -263,5 +390,13 @@ const styles = StyleSheet.create({
   error: {
     color: theme.colors.danger,
     marginBottom: theme.spacing.sm,
+  },
+  keyboardAccessory: {
+    alignItems: 'flex-end',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
 });

@@ -25,7 +25,7 @@ export default function CreateVehicleScreen() {
   return (
     <VehicleForm
       initialValues={{ plate: '', brand: '', model: '', year: '', color: '' }}
-      title="Cadastrar veículo"
+      title="Cadastrar novo veículo"
       subtitle="Preencha os dados do veículo abaixo."
       submitLabel="Salvar veículo"
       errorMessage="Não foi possível cadastrar o veículo. Verifique a conexão com a API e tente novamente."

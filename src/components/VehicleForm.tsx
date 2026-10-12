@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Button,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   ScrollView,
   StyleSheet,
@@ -64,6 +65,23 @@ export default function VehicleForm({
   onSubmit,
 }: VehicleFormProps) {
   const [saving, setSaving] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSubscription = Keyboard.addListener(showEvent, () =>
+      setKeyboardVisible(true),
+    );
+    const hideSubscription = Keyboard.addListener(hideEvent, () =>
+      setKeyboardVisible(false),
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const formik = useFormik<VehicleFormValues>({
     initialValues,
@@ -111,6 +129,8 @@ export default function VehicleForm({
           keyboardType={options?.keyboardType ?? 'default'}
           autoCapitalize={options?.autoCapitalize ?? 'sentences'}
           editable={!saving}
+          returnKeyType="done"
+          onSubmitEditing={Keyboard.dismiss}
           accessibilityLabel={label}
         />
         {showError && (
@@ -161,6 +181,11 @@ export default function VehicleForm({
           )}
         </View>
       </ScrollView>
+      {keyboardVisible && (
+        <View style={styles.keyboardAccessory}>
+          <Button title="OK" onPress={Keyboard.dismiss} />
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -217,5 +242,13 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.md,
     minHeight: 44,
     justifyContent: 'center',
+  },
+  keyboardAccessory: {
+    alignItems: 'flex-end',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
 });

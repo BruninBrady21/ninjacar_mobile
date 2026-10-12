@@ -1,11 +1,13 @@
 export const theme = {
   colors: {
     primary: '#00A859',
-    background: '#F5F5F5',
+    background: '#B0DAA6',
     surface: '#FFFFFF',
     text: '#222222',
     textSecondary: '#666666',
     border: '#DDDDDD',
+    cardBorder: '#00973a',
+    logoAccent: '#33f383',
     danger: '#D32F2F',
   },
   spacing: {

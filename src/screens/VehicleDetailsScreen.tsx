@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, View, } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View, } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { api } from '../services/api';
@@ -84,7 +85,10 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
     return (
       <View style={styles.container}>
         <Text style={styles.error}>{error || 'Veículo não encontrado.'}</Text>
-        <Button title="Tentar novamente" onPress={loadVehicle} />
+        <Pressable style={styles.actionButton} onPress={loadVehicle} accessibilityRole="button">
+          <MaterialCommunityIcons name="refresh" size={20} color={theme.colors.surface} />
+          <Text style={styles.actionButtonText}>Tentar novamente</Text>
+        </Pressable>
       </View>
     );
   }
@@ -99,12 +103,16 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
         <Detail label="Ano" value={String(vehicle.year)} />
         <Detail label="Cor" value={vehicle.color} />
       </View>
-      <Button
-        title="Editar veículo"
-        color={theme.colors.primary}
+      <Pressable
+        style={[styles.actionButton, deleting && styles.disabledButton]}
         disabled={deleting}
         onPress={() => navigation.navigate('EditVehicle', { vehicleId })}
-      />
+        accessibilityRole="button"
+        accessibilityLabel="Editar veículo"
+      >
+        <MaterialCommunityIcons name="pencil" size={20} color={theme.colors.surface} />
+        <Text style={styles.actionButtonText}>Editar veículo</Text>
+      </Pressable>
       <View style={styles.buttonSpacing}>
         {deleting ? (
           <View style={styles.deleting}>
@@ -112,11 +120,15 @@ export default function VehicleDetailsScreen({ navigation, route }: Props) {
             <Text style={styles.secondaryText}>Excluindo veículo...</Text>
           </View>
         ) : (
-          <Button
-            title="Excluir veículo"
-            color={theme.colors.danger}
+          <Pressable
+            style={[styles.actionButton, styles.deleteButton]}
             onPress={confirmDelete}
-          />
+            accessibilityRole="button"
+            accessibilityLabel="Excluir veículo"
+          >
+            <MaterialCommunityIcons name="trash-can-outline" size={20} color={theme.colors.surface} />
+            <Text style={styles.actionButtonText}>Excluir veículo</Text>
+          </Pressable>
         )}
       </View>
     </View>
@@ -160,6 +172,27 @@ const styles = StyleSheet.create({
   },
   buttonSpacing: {
     marginTop: theme.spacing.sm,
+  },
+  actionButton: {
+    minHeight: 46,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: theme.spacing.md,
+  },
+  deleteButton: {
+    backgroundColor: theme.colors.danger,
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  actionButtonText: {
+    color: theme.colors.surface,
+    fontSize: 15,
+    fontWeight: '700',
   },
   deleting: {
     minHeight: 44,
