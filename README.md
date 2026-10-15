@@ -67,7 +67,7 @@ Após iniciar o servidor, será possível ver os veículos disponíveis em:
 Para testar pelo iPhone, use o endereço IPv4 atual do computador no lugar de `localhost`, por exemplo:
 - http://IP_DO_COMPUTADOR:3000/vehicles
 
-Obs.: no arquivo api.ts deverá ser alterado para o IPv4 atual do computador a fim de que o projeto faça a conexão entre dispositivos. A alteração deverá ser na linha `baseURL: 'http://192.168.1.111:3000'`
+Obs.: no arquivo api.ts deverá ser alterado para o IPv4 atual do computador a fim de que o projeto faça a conexão entre dispositivos. A alteração deverá ser na linha `baseURL: 'http://[seu_ip]:3000'`
 
 Por fim, escaneie o QR Code com o dispositivo móvel para conectar e utilizar do aplicativo.
 
